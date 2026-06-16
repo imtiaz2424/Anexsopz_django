@@ -12,8 +12,10 @@ import { AuthContext } from "../../context/AuthContext";
 import ProtectedRoute from "../../components/ProtectedRoute";
 
 export default function OrdersPage() {
-  const { isLoggedIn } =
-    useContext(AuthContext);
+  const {
+    isLoggedIn,
+    loading: authLoading,
+  } = useContext(AuthContext);
 
   const [orders, setOrders] =
     useState([]);
@@ -22,6 +24,11 @@ export default function OrdersPage() {
     useState(true);
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+
     const userId =
       localStorage.getItem("user_id");
 
@@ -30,19 +37,36 @@ export default function OrdersPage() {
       return;
     }
 
-    fetch(
-      `http://127.0.0.1:8000/api/orders/?user=${userId}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/orders/?user=${userId}`
+        );
+
+        const data =
+          await res.json();
+
         setOrders(data);
+      } catch (err) {
+        console.error(
+          "Orders Error:",
+          err
+        );
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchOrders();
+  }, [isLoggedIn]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <ProtectedRoute>
@@ -63,7 +87,7 @@ export default function OrdersPage() {
 
           {loading ? (
             <div className="bg-white p-8 rounded-3xl shadow">
-              Loading...
+              Loading Orders...
             </div>
           ) : orders.length === 0 ? (
             <div className="bg-white p-8 rounded-3xl shadow">
@@ -78,11 +102,11 @@ export default function OrdersPage() {
                   key={order.id}
                   href={`/orders/${order.id}`}
                 >
-
                   <div className="bg-white p-6 rounded-3xl shadow-lg hover:shadow-xl transition cursor-pointer">
 
                     <h2 className="text-2xl font-bold">
-                      {order.title || `Order #${order.id}`}
+                      {order.title ||
+                        `Order #${order.id}`}
                     </h2>
 
                     <p className="text-gray-500 mt-2">
@@ -91,19 +115,54 @@ export default function OrdersPage() {
                       ).toLocaleString()}
                     </p>
 
-                    <p className="text-3xl font-black mt-4">
-                      ${order.total_price}
-                    </p>
+                    <div className="flex justify-between items-center mt-4">
 
-                    <p className="mt-2">
-                      Status:
-                      <span className="ml-2 font-bold text-green-600">
-                        {order.status || "Pending"}
+                      <p className="text-2xl font-black">
+                        $
+                        {order.total_price}
+                      </p>
+
+                      <span
+                        className={`px-4 py-2 rounded-full text-sm font-bold
+                        ${
+                          order.status ===
+                          "Pending"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : ""
+                        }
+                        ${
+                          order.status ===
+                          "Processing"
+                            ? "bg-blue-100 text-blue-700"
+                            : ""
+                        }
+                        ${
+                          order.status ===
+                          "Shipped"
+                            ? "bg-purple-100 text-purple-700"
+                            : ""
+                        }
+                        ${
+                          order.status ===
+                          "Delivered"
+                            ? "bg-green-100 text-green-700"
+                            : ""
+                        }
+                        ${
+                          order.status ===
+                          "Cancelled"
+                            ? "bg-red-100 text-red-700"
+                            : ""
+                        }
+                      `}
+                      >
+                        {order.status ||
+                          "Pending"}
                       </span>
-                    </p>
+
+                    </div>
 
                   </div>
-
                 </Link>
 
               ))}

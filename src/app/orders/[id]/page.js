@@ -7,12 +7,9 @@ import ProtectedRoute from "../../../components/ProtectedRoute";
 
 export default function OrderDetailsPage() {
   const params = useParams();
-
-  const [items, setItems] =
-    useState([]);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [order, setOrder] = useState(null);
 
   useEffect(() => {
     if (!params?.id) return;
@@ -29,6 +26,22 @@ export default function OrderDetailsPage() {
         console.error(err);
         setLoading(false);
       });
+
+
+      
+
+      fetch(
+        `http://127.0.0.1:8000/api/orders/${params.id}/`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setOrder(data);
+        });
+
+
+
+
+
 
   }, [params?.id]);
 
@@ -85,6 +98,12 @@ export default function OrderDetailsPage() {
                     <h2 className="text-2xl font-bold">
                       {item.product_name}
                     </h2>
+
+                    <div className="mb-8">
+                      <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full font-bold">
+                        {order.status}
+                      </span>
+                    </div>
 
                     <p className="mt-3">
                       Price:

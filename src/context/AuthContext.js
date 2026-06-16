@@ -22,60 +22,66 @@ export default function AuthProvider({
     useState(true);
 
   useEffect(() => {
-    const token =
-      localStorage.getItem(
-        "access_token"
-      );
+    const checkAuth = async () => {
+      try {
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
 
-    const userId =
-      localStorage.getItem(
-        "user_id"
-      );
+        const userId =
+          localStorage.getItem(
+            "user_id"
+          );
 
-    if (token) {
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        setIsLoggedIn(true);
+
+        if (userId) {
+          const res = await fetch(
+            `http://127.0.0.1:8000/api/profile/${userId}/`
+          );
+
+          const data =
+            await res.json();
+
+          setUser(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const login = async () => {
+    try {
+      const userId =
+        localStorage.getItem(
+          "user_id"
+        );
+
       setIsLoggedIn(true);
 
       if (userId) {
-        fetch(
+        const res = await fetch(
           `http://127.0.0.1:8000/api/profile/${userId}/`
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            setUser(data);
-          })
-          .catch((err) =>
-            console.error(err)
-          )
-          .finally(() => {
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const login = () => {
-    setIsLoggedIn(true);
-
-    const userId =
-      localStorage.getItem(
-        "user_id"
-      );
-
-    if (userId) {
-      fetch(
-        `http://127.0.0.1:8000/api/profile/${userId}/`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setUser(data);
-        })
-        .catch((err) =>
-          console.error(err)
         );
+
+        const data =
+          await res.json();
+
+        setUser(data);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -103,7 +109,7 @@ export default function AuthProvider({
     setUser(null);
     setIsLoggedIn(false);
 
-    window.location.href = "/";
+    window.location.replace("/");
   };
 
   return (
