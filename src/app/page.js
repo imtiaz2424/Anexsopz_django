@@ -271,7 +271,7 @@ return ( <main className="min-h-screen bg-gray-50">
   <footer className="bg-black text-white py-12 text-center">
 
     <h2 className="text-2xl font-black">
-      Subecha
+      AnexSopz
     </h2>
 
     <p className="text-gray-400">

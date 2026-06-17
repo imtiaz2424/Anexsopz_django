@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Sum
 
 from rest_framework import status
 from rest_framework import viewsets
@@ -240,5 +241,30 @@ def profile(request, user_id):
             },
             status=404
         )
+
+
+
+@api_view(["GET"])
+def dashboard_stats(request):
+
+    total_products = Product.objects.count()
+
+    total_users = User.objects.count()
+
+    total_orders = Order.objects.count()
+
+    revenue = (
+        Order.objects.aggregate(
+            total=Sum("total_price")
+        )["total"]
+        or 0
+    )
+
+    return Response({
+        "total_products": total_products,
+        "total_users": total_users,
+        "total_orders": total_orders,
+        "revenue": revenue,
+    })
 
     

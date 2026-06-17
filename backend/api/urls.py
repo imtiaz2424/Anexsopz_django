@@ -9,6 +9,7 @@ WishlistViewSet,
 register_user,
 profile,
 ReviewViewSet,
+dashboard_stats,
 )
 
 router = DefaultRouter()
@@ -26,5 +27,6 @@ urlpatterns = [
     path("register/", register_user, name="register",),
     path("profile/<int:user_id>/", profile, name="profile",),
     path("", include(router.urls),),
+    path("dashboard-stats/", dashboard_stats),
 
 ]

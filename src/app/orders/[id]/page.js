@@ -101,7 +101,7 @@ export default function OrderDetailsPage() {
 
                     <div className="mb-8">
                       <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full font-bold">
-                        {order.status}
+                        {order?.status || "Pending"}
                       </span>
                     </div>
 

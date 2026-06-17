@@ -27,13 +27,13 @@ export default function Navbar() {
         >
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg">
             <span className="text-white text-3xl font-black">
-              S
+              A
             </span>
           </div>
 
           <div>
             <h1 className="text-3xl font-black">
-              Subecha
+              AnexSopz
             </h1>
 
             <p className="text-sm text-gray-500">
@@ -58,6 +58,9 @@ export default function Navbar() {
 
           <Link href="/orders">
             Orders
+          </Link>
+          <Link href="/admin-dashboard">
+            Dashboard
           </Link>
 
           {loading ? (
@@ -89,6 +92,7 @@ export default function Navbar() {
             >
               Login
             </Link>
+            
           )}
 
         </div>

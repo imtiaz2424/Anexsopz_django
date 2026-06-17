@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Subecha",
+  title: "AnexSopz",
   description: "E-Commerce Website",
 };
 
