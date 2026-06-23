@@ -7,14 +7,15 @@ export default function AddProductPage() {
 
   const router = useRouter();
 
-  const [form, setForm] =
-    useState({
-      name: "",
-      category: "",
-      price: "",
-      image: "",
-      description: "",
-    });
+  const [form, setForm] = useState({
+    name: "",
+    category: "",
+    price: "",
+    description: "",
+  });
+
+  const [image, setImage] =
+    useState(null);
 
   const [loading, setLoading] =
     useState(false);
@@ -41,22 +42,51 @@ export default function AddProductPage() {
 
       setLoading(true);
 
+      const formData =
+        new FormData();
+
+      formData.append(
+        "name",
+        form.name
+      );
+
+      formData.append(
+        "category",
+        form.category
+      );
+
+      formData.append(
+        "price",
+        form.price
+      );
+
+      formData.append(
+        "description",
+        form.description
+      );
+
+      if (image) {
+        formData.append(
+          "image",
+          image
+        );
+      }
+
       const response =
         await fetch(
           "http://127.0.0.1:8000/api/products/",
           {
             method: "POST",
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
-            body: JSON.stringify(
-              form
-            ),
+            body: formData,
           }
         );
 
       if (!response.ok) {
+
+        const error =
+          await response.json();
+
+        console.log(error);
 
         alert(
           "Product Add Failed"
@@ -132,14 +162,26 @@ export default function AddProductPage() {
           />
 
           <input
-            type="text"
-            name="image"
-            placeholder="Image URL"
-            value={form.image}
-            onChange={handleChange}
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setImage(
+                e.target.files[0]
+              )
+            }
             className="w-full border p-4 rounded-xl"
             required
           />
+
+          {image && (
+            <img
+              src={URL.createObjectURL(
+                image
+              )}
+              alt="Preview"
+              className="w-40 h-40 object-cover rounded-xl"
+            />
+          )}
 
           <textarea
             name="description"
