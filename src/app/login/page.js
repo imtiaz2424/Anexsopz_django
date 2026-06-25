@@ -1,150 +1,213 @@
 "use client";
 
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
-import { AuthContext } from "../../context/AuthContext";
 
 export default function LoginPage() {
-  const router = useRouter();
 
-  const { login } = useContext(AuthContext);
+const router = useRouter();
 
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-  });
+const [email, setEmail] =
+useState("");
 
-  const [loading, setLoading] = useState(false);
+const [password, setPassword] =
+useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+const [loading, setLoading] =
+useState(false);
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+const handleSubmit = async (e) => {
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    try {
-      setLoading(true);
+e.preventDefault();
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/token/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
+try {
 
-      const data = await response.json();
+  setLoading(true);
 
-      console.log("API RESPONSE:", data);
-
-      if (!response.ok) {
-        alert("Invalid Username or Password");
-        return;
+  const response =
+    await fetch(
+      "http://127.0.0.1:8000/api/login/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       }
+    );
 
-      localStorage.setItem(
-        "access_token",
-        data.access
-      );
+  const data =
+    await response.json();
 
-      localStorage.setItem(
-        "refresh_token",
-        data.refresh
-      );
+  if (!response.ok) {
 
-      const payload = JSON.parse(
-        atob(data.access.split(".")[1])
-      );
+    alert(
+      data.error ||
+      "Login Failed"
+    );
 
-      localStorage.setItem(
-        "user_id",
-        payload.user_id
-      );
+    return;
+  }
 
-      login();
+  localStorage.setItem(
+    "user_id",
+    data.user_id
+  );
 
-      alert("Login Successful");
+  localStorage.setItem(
+    "username",
+    data.username
+  );
 
-      router.push("/");
+  localStorage.setItem(
+    "email",
+    data.email
+  );
 
-    } catch (error) {
-      console.error(error);
-      alert("Login Failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  alert(
+    "Login Successful"
+  );
 
-  return (
-    <main className="min-h-screen bg-gray-100 flex items-center justify-center p-5">
+  router.push("/");
 
-      <div className="bg-white p-10 rounded-3xl shadow-lg w-full max-w-md">
+} catch (error) {
 
-        <h1 className="text-4xl font-black mb-8 text-center">
-          Login
-        </h1>
+  console.log(error);
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
+  alert(
+    "Something Went Wrong"
+  );
 
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            className="w-full border p-4 rounded-xl"
-            required
-          />
+} finally {
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            className="w-full border p-4 rounded-xl"
-            required
-          />
+  setLoading(false);
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-black text-white py-4 rounded-xl"
-          >
-            {loading
-              ? "Logging In..."
-              : "Login"}
-          </button>
+}
 
-        </form>
 
-        <p className="text-center mt-6">
-          Don't have an account?
+};
+
+return (
+
+
+<main className="min-h-screen bg-gray-100 flex flex-col lg:flex-row">
+
+  <div className="hidden lg:flex w-1/2 items-center justify-center bg-white">
+
+    <Image
+      src="/images/login-illustration.png"
+      alt="Login"
+      width={600}
+      height={600}
+      priority
+      className="object-contain"
+    />
+
+  </div>
+
+  <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-10">
+
+    <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl p-8 md:p-10">
+
+      <h1 className="text-5xl font-black text-blue-700 mb-3">
+        Welcome Back
+      </h1>
+
+      <p className="text-xl mb-8">
+        Login to continue shopping
+      </p>
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+      >
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) =>
+            setEmail(
+              e.target.value
+            )
+          }
+          required
+          className="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) =>
+            setPassword(
+              e.target.value
+            )
+          }
+          required
+          className="w-full border border-gray-300 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        <div className="flex justify-between text-sm">
+
+          <label className="flex items-center gap-2">
+
+            <input
+              type="checkbox"
+            />
+
+            Remember Me
+
+          </label>
 
           <Link
-            href="/register"
-            className="text-blue-600 ml-2"
-          >
-            Register
+              href="/forgot-password"
+              className="text-blue-600"
+            >
+              Forgot Password?
           </Link>
 
-        </p>
+        </div>
 
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-xl text-xl font-bold transition"
+        >
+          {loading
+            ? "Logging In..."
+            : "Log In"}
+        </button>
+
+      </form>
+
+      <div className="text-center mt-8">
+          <p className="text-lg">
+            Don't have an account?
+
+            <Link
+              href="/register"
+              className="text-blue-600 font-bold ml-2"
+            >
+              Register Now
+            </Link>
+          </p>
       </div>
 
-    </main>
-  );
+    </div>
+
+  </div>
+
+</main>
+
+
+);
+
 }

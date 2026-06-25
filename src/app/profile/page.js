@@ -69,37 +69,16 @@ return ( <ProtectedRoute>
 
         <div className="flex flex-col md:flex-row items-center gap-8 mb-10">
 
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-violet-600 shadow-lg">
-
-            {profile?.image ? (
+          <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-200">
 
               <img
                 src={
-                  profile.image.startsWith(
-                    "http"
-                  )
-                    ? profile.image
-                    : `http://127.0.0.1:8000${profile.image}`
+                  profile?.image ||
+                  "http://127.0.0.1:8000/media/profiles/default.png"
                 }
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
-
-            ) : (
-
-              <div className="w-full h-full flex items-center justify-center">
-
-                <span className="text-white text-5xl font-black">
-
-                  {user?.username
-                    ?.charAt(0)
-                    ?.toUpperCase()}
-
-                </span>
-
-              </div>
-
-            )}
 
           </div>
 

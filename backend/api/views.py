@@ -6,6 +6,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+
+
 from rest_framework.parsers import (
     MultiPartParser,
     FormParser,
@@ -187,7 +193,11 @@ def register_user(request):
     )
 
     password = request.data.get(
-        "password"
+    "password"
+    )
+
+    phone = request.data.get(
+        "phone"
     )
 
    
@@ -233,7 +243,8 @@ def register_user(request):
     )
 
     Profile.objects.create(
-        user=user
+        user=user,
+        phone=phone
     )
 
     return Response(
@@ -298,5 +309,57 @@ def dashboard_stats(request):
         "total_orders": total_orders,
         "revenue": revenue,
     })
+
+
+
+
+
+@api_view(["POST"])
+def forgot_password(request):
+
+    email = request.data.get("email")
+
+    try:
+
+        user = User.objects.get(
+            email=email
+        )
+
+        uid = urlsafe_base64_encode(
+            force_bytes(user.pk)
+        )
+
+        token = default_token_generator.make_token(
+            user
+        )
+
+        reset_link = (
+            f"http://localhost:3000/reset-password/{uid}/{token}"
+        )
+
+        send_mail(
+            "Password Reset",
+            f"Click this link to reset your password:\n\n{reset_link}",
+            None,
+            [email],
+            fail_silently=False,
+        )
+
+        return Response({
+            "message":
+            "Password reset email sent"
+        })
+
+    except User.DoesNotExist:
+
+        return Response(
+            {
+                "error":
+                "Email not found"
+            },
+            status=404
+        )
+
+
 
     

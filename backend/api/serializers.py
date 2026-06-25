@@ -100,4 +100,5 @@ class ProfileSerializer(
             "user",
             "username",
             "image",
+            "phone",
         ]
