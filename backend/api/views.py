@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.utils.encoding import (force_str)
 
 
 from rest_framework.parsers import (
@@ -359,6 +360,73 @@ def forgot_password(request):
             },
             status=404
         )
+
+
+
+
+@api_view(["POST"])
+def reset_password(request):
+
+    uid = request.data.get(
+        "uid"
+    )
+
+    token = request.data.get(
+        "token"
+    )
+
+    password = request.data.get(
+        "password"
+    )
+
+    try:
+
+        user_id = force_str(
+            urlsafe_base64_decode(
+                uid
+            )
+        )
+
+        user = User.objects.get(
+            pk=user_id
+        )
+
+    except Exception:
+
+        return Response(
+            {
+                "error":
+                "Invalid link"
+            },
+            status=400
+        )
+
+    if not default_token_generator.check_token(
+        user,
+        token
+    ):
+
+        return Response(
+            {
+                "error":
+                "Invalid or expired token"
+            },
+            status=400
+        )
+
+    user.set_password(
+        password
+    )
+
+    user.save()
+
+    return Response(
+        {
+            "message":
+            "Password reset successful"
+        }
+    )
+
 
 
 

@@ -12,6 +12,7 @@ ReviewViewSet,
 dashboard_stats,
 ProfileViewSet,
 forgot_password,
+reset_password,
 )
 
 router = DefaultRouter()
@@ -31,6 +32,7 @@ urlpatterns = [
     path("profile/<int:user_id>/", profile, name="profile",),
     path("", include(router.urls),),
     path("dashboard-stats/", dashboard_stats),
-    path("forgot-password/", forgot_password),    
+    path("forgot-password/", forgot_password),
+    path("reset-password/", reset_password),  
 
 ]
